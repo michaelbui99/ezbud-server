@@ -10,7 +10,14 @@ public class AccountService(ILogger<AccountService> logger, IAccountRepository a
 {
     public async Task<Domain.Account.Account?> GetAccountByIdAsync(string userId, Guid accountId)
     {
-        return await accountRepository.GetAccountByIdAsync(userId, accountId);
+        if (!await UserOwnsAccount(userId, accountId))
+        {
+            logger.LogWarning("User '{}' tried to retrieve account '{}' that belongs to another user.", userId,
+                accountId);
+            return null;
+        }
+
+        return await accountRepository.GetAccountByIdAsync(accountId);
     }
 
     public async Task<ICollection<Domain.Account.Account>> GetAllAccountsAsync(string userId)
@@ -71,5 +78,10 @@ public class AccountService(ILogger<AccountService> logger, IAccountRepository a
                 userId);
             return DomainActionResult.Failure(e);
         }
+    }
+
+    private async Task<bool> UserOwnsAccount(string userId, Guid accountId)
+    {
+        return true;
     }
 }

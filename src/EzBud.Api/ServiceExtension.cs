@@ -19,6 +19,7 @@ public static class ServiceExtension
             client.Timeout = TimeSpan.FromSeconds(30);
         });
         services.AddSwaggerGen();
+        services.AddHttpLogging();
         return services;
     }
 }

@@ -16,7 +16,7 @@ public class SqlAccountRepository : IAccountRepository
                             throw new ConfigurationException("DB Connection string has not been configured.");
     }
 
-    public async Task<Domain.Account.Account?> GetAccountByIdAsync(string userId, Guid accountId)
+    public async Task<Domain.Account.Account?> GetAccountByIdAsync(Guid accountId)
     {
         await using NpgsqlConnection connection = new(_connectionString);
         AccountDto? dto =
