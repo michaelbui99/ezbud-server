@@ -2,11 +2,12 @@ using System.Net;
 using EzBud.Api.Controllers.Account.Dtos;
 using EzBud.Application.Account;
 using EzBud.Domain;
-using EzBud.Domain.Account;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EzBud.Api.Controllers.Account;
 
+[Authorize]
 [ApiController]
 [Route("api/v1/accounts")]
 // TODO: Convert to read DTOs instead of exposing the domain objects.

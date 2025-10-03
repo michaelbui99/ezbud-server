@@ -1,5 +1,8 @@
+using System.Security.Claims;
 using System.Text.Json;
 using EzBud.Infrastructure;
+using EzBud.Infrastructure.Data.User;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 
 namespace EzBud.Api;
@@ -22,13 +25,14 @@ public static class ServiceExtension
         });
         services.AddSwaggerGen();
         services.AddHttpLogging();
+        services.AddAuth(configuration);
         return services;
     }
 
     private static IServiceCollection AddAuth(this IServiceCollection services,
-        ConfigurationManager configurationManager)
+        ConfigurationManager configuration)
     {
-        JwtOptions? jwtOptions = configurationManager.GetSection(JwtOptions.Section).Get<JwtOptions>();
+        JwtOptions? jwtOptions = configuration.GetSection(JwtOptions.Section).Get<JwtOptions>();
         if (jwtOptions is null)
         {
             throw new ConfigurationException("JWT options has not been configured");
@@ -53,6 +57,40 @@ public static class ServiceExtension
                     ValidateAudience = false,
                     ValidateLifetime = true,
                     ValidateIssuer = true
+                };
+                opts.Events = new JwtBearerEvents()
+                {
+                    OnTokenValidated = context =>
+                    {
+                        if (context.Principal is null)
+                        {
+                            return Task.CompletedTask;
+                        }
+
+                        var userId = context.Principal.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)
+                            ?.Value;
+                        if (userId is null)
+                        {
+                            return Task.CompletedTask;
+                        }
+
+                        var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<JwtBearerEvents>>();
+                        var userRepository = context.HttpContext.RequestServices.GetRequiredService<IUserRepository>();
+                        if (userRepository.UserExists(userId))
+                        {
+                            return Task.CompletedTask;
+                        }
+
+                        var name = context.Principal.Claims.FirstOrDefault(c => c.Type == "name")?.Value;
+                        if (name is null)
+                        {
+                            return Task.CompletedTask;
+                        }
+
+                        logger.LogInformation("Creating new user {}.", userId);
+                        userRepository.CreateUser(userId, name);
+                        return Task.CompletedTask;
+                    }
                 };
             });
 
