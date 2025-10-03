@@ -9,6 +9,6 @@ public static class AccountNameValidator
             return new DomainException("Name must not be empty");
         }
 
-        return name.Length > Domain.Account.Account.MaxNameLength ? new DomainException("Name is must not exceed 70 characters") : null;
+        return name.Length > Domain.Account.Account.MaxNameLength ? new DomainException("Name must not exceed 70 characters") : null;
     }
 }
