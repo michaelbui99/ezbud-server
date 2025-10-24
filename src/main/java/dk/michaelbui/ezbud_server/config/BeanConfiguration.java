@@ -4,8 +4,7 @@ import dk.michaelbui.ezbud_server.domain.repository.AccountRepository;
 import dk.michaelbui.ezbud_server.domain.repository.UserRepository;
 import dk.michaelbui.ezbud_server.domain.service.AccountService;
 import dk.michaelbui.ezbud_server.domain.service.AccountServiceImpl;
-import dk.michaelbui.ezbud_server.infrastructure.InMemoryAccountRepository;
-import dk.michaelbui.ezbud_server.infrastructure.InMemoryUserRepository;
+import dk.michaelbui.ezbud_server.infrastructure.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -13,18 +12,18 @@ import org.springframework.context.annotation.Configuration;
 public class BeanConfiguration {
 
     @Bean
-    public AccountService accountService() {
-        return new AccountServiceImpl(accountRepository());
+    public AccountService accountService(ConnectionProvider connectionProvider) {
+        return new AccountServiceImpl(accountRepository(connectionProvider));
     }
 
     @Bean
-    public AccountRepository accountRepository() {
-        return new InMemoryAccountRepository();
+    public AccountRepository accountRepository(ConnectionProvider connectionProvider) {
+        return new SqlAccountsRepository(connectionProvider);
     }
 
     @Bean
-    public UserRepository userRepository() {
-        return new InMemoryUserRepository();
+    public UserRepository userRepository(ConnectionProvider connectionProvider) {
+        return new SqlUsersRepository(connectionProvider);
     }
 
 }

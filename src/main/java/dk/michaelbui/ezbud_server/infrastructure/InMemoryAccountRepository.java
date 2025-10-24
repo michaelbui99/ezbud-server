@@ -2,6 +2,7 @@ package dk.michaelbui.ezbud_server.infrastructure;
 
 import dk.michaelbui.ezbud_server.domain.model.Account;
 import dk.michaelbui.ezbud_server.domain.repository.AccountRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.*;
 

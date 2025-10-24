@@ -1,5 +1,9 @@
 [versions]
 springdoc = "2.8.5"
+jooq = "3.20.8"
 
 [libraries]
 springdoc-openapi-starter-webmvc-ui = {module = "org.springdoc:springdoc-openapi-starter-webmvc-ui", version.ref="springdoc"}
+jooq = {module="org.jooq:jooq", version.ref="jooq"}
+jooq-meta = {module="org.jooq:jooq-meta", version.ref="jooq"}
+jooq-codegen= {module="org.jooq:jooq-codegen", version.ref="jooq"}
