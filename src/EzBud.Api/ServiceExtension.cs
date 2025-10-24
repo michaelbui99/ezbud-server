@@ -4,6 +4,7 @@ using EzBud.Infrastructure;
 using EzBud.Infrastructure.Data.User;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 
 namespace EzBud.Api;
 
@@ -23,7 +24,16 @@ public static class ServiceExtension
             client.DefaultRequestHeaders.Add("Accept", "application/json");
             client.Timeout = TimeSpan.FromSeconds(30);
         });
-        services.AddSwaggerGen();
+        services.AddSwaggerGen(options =>
+        {
+            options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+            {
+                Name = "Authorization",
+                In = ParameterLocation.Header,
+                Type =SecuritySchemeType.ApiKey,
+                Scheme = "Bearer"
+            });
+        } );
         services.AddHttpLogging();
         services.AddAuth(configuration);
         return services;
@@ -60,6 +70,12 @@ public static class ServiceExtension
                 };
                 opts.Events = new JwtBearerEvents()
                 {
+                    OnAuthenticationFailed = context =>
+                    {
+                        var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<JwtBearerEvents>>();
+                        logger.LogInformation("Auth failed for: {}", context.Result.Failure);
+                        return Task.CompletedTask;
+                    },
                     OnTokenValidated = context =>
                     {
                         if (context.Principal is null)

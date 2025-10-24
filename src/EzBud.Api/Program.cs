@@ -19,9 +19,7 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
-
-SetupCors();
-
+app.ConfigureCors(builder.Configuration);
 app.UseSwagger();
 app.UseSwaggerUI();
 app.MapControllers();
@@ -31,20 +29,3 @@ app.UseHttpsRedirection();
 
 app.Run();
 return;
-
-void SetupCors()
-{
-    CorsOptions? corsOptions = builder.Configuration.GetSection(CorsOptions.Section).Get<CorsOptions>();
-    if (corsOptions is null)
-    {
-        throw new ConfigurationException("Missing Cors configuration");
-    }
-
-    app.UseCors(opts =>
-    {
-        opts
-            .WithOrigins(corsOptions.AllowedOrigins.ToArray())
-            .WithHeaders(corsOptions.AllowedHeaders.ToArray())
-            .WithMethods(corsOptions.AllowedMethods.ToArray());
-    });
-}
