@@ -1,0 +1,5 @@
+[versions]
+springdoc = "2.8.5"
+
+[libraries]
+springdoc-openapi-starter-webmvc-ui = {module = "org.springdoc:springdoc-openapi-starter-webmvc-ui", version.ref="springdoc"}
