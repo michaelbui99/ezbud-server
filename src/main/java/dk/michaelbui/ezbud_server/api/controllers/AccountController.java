@@ -2,7 +2,7 @@ package dk.michaelbui.ezbud_server.api.controllers;
 
 import dk.michaelbui.ezbud_server.api.AuthUtil;
 import dk.michaelbui.ezbud_server.api.dtos.CreateAccountDto;
-import dk.michaelbui.ezbud_server.domain.model.Account;
+import dk.michaelbui.ezbud_server.api.dtos.ReadAccountDto;
 import dk.michaelbui.ezbud_server.domain.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatusCode;
@@ -25,27 +25,35 @@ public class AccountController {
     }
 
     @PostMapping
-    public ResponseEntity<Account> createAccount(@RequestBody CreateAccountDto dto, JwtAuthenticationToken auth) {
+    public ResponseEntity<ReadAccountDto> createAccount(@RequestBody CreateAccountDto dto, JwtAuthenticationToken auth) {
         Optional<String> userId = AuthUtil.getUserId(auth);
         return userId
-                .map(id -> ResponseEntity.ok(accountService.createAccount(id, dto.getName(), dto.isOnBudget())))
+                .map(id -> ResponseEntity.ok(ReadAccountDto.from(accountService.createAccount(id, dto.getName(), dto.isOnBudget()))))
                 .orElseGet(() -> ResponseEntity.status(HttpStatusCode.valueOf(401)).build());
     }
 
     @GetMapping
-    public ResponseEntity<Collection<Account>> getAccounts(JwtAuthenticationToken auth) {
+    public ResponseEntity<Collection<ReadAccountDto>> getAccounts(JwtAuthenticationToken auth) {
         Optional<String> userId = AuthUtil.getUserId(auth);
-        return userId
-                .map(id -> ResponseEntity.ok(accountService.getAllAccounts(id)))
+        return userId.<ResponseEntity<Collection<ReadAccountDto>>>map(s ->
+                        ResponseEntity.ok(
+                                accountService.getAllAccounts(s)
+                                        .stream()
+                                        .map(ReadAccountDto::from)
+                                        .toList()
+                        )
+                )
                 .orElseGet(() -> ResponseEntity.status(HttpStatusCode.valueOf(401)).build());
+
     }
 
 
     @GetMapping("{accountId}")
-    public ResponseEntity<Account> getAccounts(@PathVariable UUID accountId, JwtAuthenticationToken auth) {
+    public ResponseEntity<ReadAccountDto> getAccounts(@PathVariable UUID accountId, JwtAuthenticationToken auth) {
         Optional<String> userId = AuthUtil.getUserId(auth);
         return userId
                 .map(id -> accountService.getAccountById(accountId)
+                        .map(ReadAccountDto::from)
                         .map(ResponseEntity::ok)
                         .orElse(ResponseEntity.notFound().build())
                 )
