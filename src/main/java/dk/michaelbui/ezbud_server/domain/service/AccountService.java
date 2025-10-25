@@ -10,7 +10,7 @@ import java.util.UUID;
 public interface AccountService {
     boolean userHasAccount(String userId, UUID accountId);
     Collection<Account> getAllAccounts(String userId);
-    Optional<Account> getAccountById(UUID id);
+    Optional<Account> getAccountById(String userId, UUID id);
 
     Account createAccount(String userId, String name, boolean isOnBudget) throws DomainException;
     void updateAccount(String userId, Account updatedAccount) throws DomainException;

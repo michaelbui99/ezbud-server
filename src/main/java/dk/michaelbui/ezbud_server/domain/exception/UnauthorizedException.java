@@ -13,6 +13,12 @@ public class UnauthorizedException extends DomainException {
         super(message);
     }
 
+    public UnauthorizedException(String message, Class<?> resourceClass, String resourceId) {
+        super(message);
+        this.resourceClass = resourceClass;
+        this.resourceId = resourceId;
+    }
+
     public UnauthorizedException(String message, Throwable cause) {
         super(message, cause);
     }
@@ -48,6 +54,7 @@ public class UnauthorizedException extends DomainException {
         if (resourceClass != null) {
             message.append("resourceClass=").append(resourceClass.getSimpleName()).append(";");
         }
+        message.append("}");
 
         if (log.isErrorEnabled()) {
             log.error(message.toString(), this);

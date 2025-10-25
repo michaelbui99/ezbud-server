@@ -52,7 +52,7 @@ public class AccountController {
     public ResponseEntity<ReadAccountDto> getAccounts(@PathVariable UUID accountId, JwtAuthenticationToken auth) {
         Optional<String> userId = AuthUtil.getUserId(auth);
         return userId
-                .map(id -> accountService.getAccountById(accountId)
+                .map(id -> accountService.getAccountById(id, accountId)
                         .map(ReadAccountDto::from)
                         .map(ResponseEntity::ok)
                         .orElse(ResponseEntity.notFound().build())

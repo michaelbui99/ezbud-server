@@ -1,6 +1,7 @@
 package dk.michaelbui.ezbud_server.domain.service;
 
 import dk.michaelbui.ezbud_server.domain.exception.DomainException;
+import dk.michaelbui.ezbud_server.domain.exception.UnauthorizedException;
 import dk.michaelbui.ezbud_server.domain.exception.ValidationException;
 import dk.michaelbui.ezbud_server.domain.model.Account;
 import dk.michaelbui.ezbud_server.domain.model.validators.AccountValidator;
@@ -30,8 +31,12 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Optional<Account> getAccountById(UUID id) {
-        return Optional.ofNullable(accountRepository.getAccountById(id));
+    public Optional<Account> getAccountById(String userId, UUID id) {
+        Optional<Account> account = Optional.ofNullable(accountRepository.getAccountById(id));
+        if (account.isPresent() && !accountRepository.userHasAccount(userId, id)){
+            throw new UnauthorizedException(String.format("User %s attempted to access account '%s'", userId, id), Account.class, id.toString());
+        }
+        return account;
     }
 
     @Override

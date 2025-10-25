@@ -34,6 +34,7 @@ public class NotFoundException extends DomainException {
         if (entityClass != null) {
             message.append("entityClass=").append(entityClass.getSimpleName()).append(";");
         }
+        message.append("}");
 
         if (log.isErrorEnabled()) {
             log.error(message.toString(), this);
